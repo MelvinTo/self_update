@@ -45,6 +45,7 @@ which runs something roughly equivalent to:
 
 ```rust
 use self_update::cargo_crate_version;
+use log::info;
 
 fn update() -> Result<(), Box<::std::error::Error>> {
     let status = self_update::backends::github::Update::configure()
@@ -55,7 +56,7 @@ fn update() -> Result<(), Box<::std::error::Error>> {
         .current_version(cargo_crate_version!())
         .build()?
         .update()?;
-    println!("Update status: `{}`!", status.version());
+    info!("Update status: `{}`!", status.version());
     Ok(())
 }
 ```
@@ -79,7 +80,7 @@ fn update() -> Result<(), Box<::std::error::Error>> {
         .current_version(cargo_crate_version!())
         .build()?
         .update()?;
-    println!("S3 Update status: `{}`!", status.version());
+    info!("S3 Update status: `{}`!", status.version());
     Ok(())
 }
 ```
@@ -95,8 +96,8 @@ fn update() -> Result<(), Box<::std::error::Error>> {
         .repo_name("self_update")
         .build()?
         .fetch()?;
-    println!("found releases:");
-    println!("{:#?}\n", releases);
+    info!("found releases:");
+    info!("{:#?}\n", releases);
 
     // get the first available release
     let asset = releases[0]
@@ -774,7 +775,7 @@ mod tests {
     #[test]
     #[ignore]
     fn detect_tar_gz() {
-        println!("WARNING: Please enable 'archive-tar' feature!");
+        info!("WARNING: Please enable 'archive-tar' feature!");
     }
     #[cfg(feature = "archive-tar")]
     #[test]
@@ -789,7 +790,7 @@ mod tests {
     #[test]
     #[ignore]
     fn detect_plain_tar() {
-        println!("WARNING: Please enable 'archive-tar' feature!");
+        info!("WARNING: Please enable 'archive-tar' feature!");
     }
     #[cfg(feature = "archive-tar")]
     #[test]
@@ -804,7 +805,7 @@ mod tests {
     #[test]
     #[ignore]
     fn detect_zip() {
-        println!("WARNING: Please enable 'archive-zip' feature!");
+        info!("WARNING: Please enable 'archive-zip' feature!");
     }
     #[cfg(feature = "archive-zip")]
     #[test]
@@ -827,7 +828,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_plain_gzip() {
-        println!("WARNING: Please enable 'compression-flate2' feature!");
+        info!("WARNING: Please enable 'compression-flate2' feature!");
     }
     #[cfg(feature = "compression-flate2")]
     #[test]
@@ -859,7 +860,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_plain_gzip_double_ext() {
-        println!("WARNING: Please enable 'compression-flate2' feature!");
+        info!("WARNING: Please enable 'compression-flate2' feature!");
     }
     #[cfg(feature = "compression-flate2")]
     #[test]
@@ -891,7 +892,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_tar_gzip() {
-        println!("WARNING: Please enable 'archive-tar compression-flate2' features!");
+        info!("WARNING: Please enable 'archive-tar compression-flate2' features!");
     }
     #[cfg(all(feature = "archive-tar", feature = "compression-flate2"))]
     #[test]
@@ -907,7 +908,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_file_plain_gzip() {
-        println!("WARNING: Please enable 'compression-flate2' feature!");
+        info!("WARNING: Please enable 'compression-flate2' feature!");
     }
     #[cfg(feature = "compression-flate2")]
     #[test]
@@ -939,7 +940,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_file_tar_gzip() {
-        println!("WARNING: Please enable 'archive-tar compression-flate2' features!");
+        info!("WARNING: Please enable 'archive-tar compression-flate2' features!");
     }
     #[cfg(all(feature = "archive-tar", feature = "compression-flate2"))]
     #[test]
@@ -955,7 +956,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_zip() {
-        println!("WARNING: Please enable 'archive-zip' feature!");
+        info!("WARNING: Please enable 'archive-zip' feature!");
     }
     #[cfg(feature = "archive-zip")]
     #[test]
@@ -971,7 +972,7 @@ mod tests {
     #[test]
     #[ignore]
     fn unpack_zip_file() {
-        println!("WARNING: Please enable 'archive-zip' feature!");
+        info!("WARNING: Please enable 'archive-zip' feature!");
     }
     #[cfg(feature = "archive-zip")]
     #[test]

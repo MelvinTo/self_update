@@ -296,7 +296,7 @@ fn print_flush(show_output: bool, msg: &str) -> Result<()> {
 // Print out message based on provided flag
 fn println(show_output: bool, msg: &str) {
     if show_output {
-        println!("{}", msg);
+        info!("{}", msg);
     }
 }
 
