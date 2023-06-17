@@ -26,11 +26,11 @@ macro_rules! set_ssl_vars {
 /// Helper to `print!` and immediately `flush` `stdout`
 macro_rules! print_flush {
     ($literal:expr) => {
-        print!($literal);
+        info!($literal);
         ::std::io::Write::flush(&mut ::std::io::stdout())?;
     };
     ($literal:expr, $($arg:expr),*) => {
-        print!($literal, $($arg),*);
+        info!($literal, $($arg),*);
         ::std::io::Write::flush(&mut ::std::io::stdout())?;
     }
 }
