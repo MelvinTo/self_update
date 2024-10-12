@@ -329,7 +329,7 @@ fn verify_signature(
                 return Ok(());
             }
             #[cfg(feature = "compression-flate2")]
-            crate::ArchiveKind::Gz => {
+            crate::ArchiveKind::Plain(Some(crate::Compression::Gz)) => {
                 zipsign_api::verify::verify_tar(&mut exe, &keys, Some(context))
                     .map_err(zipsign_api::ZipsignError::from)?;
                 return Ok(());
