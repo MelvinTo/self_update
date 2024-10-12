@@ -332,6 +332,7 @@ fn verify_signature(
             crate::ArchiveKind::Plain(Some(crate::Compression::Gz)) => {
                 zipsign_api::verify::verify_tar(&mut exe, &keys, Some(context))
                     .map_err(zipsign_api::ZipsignError::from)?;
+                info!("Package signature verified: {}", archive_path.display());
                 return Ok(());
             }
             _ => {}
