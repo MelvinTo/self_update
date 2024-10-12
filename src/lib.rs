@@ -28,6 +28,7 @@ available (but _disabled_ by default):
 * `compression-zip-deflate`: Support for _zip_'s _deflate_ compression format;
 * `compression-zip-bzip2`: Support for _zip_'s _bzip2_ compression format;
 * `rustls`: Use [pure rust TLS implementation](https://github.com/ctz/rustls) for network requests. This feature does _not_ support 32bit macOS;
+* `signatures`: Use [zipsign](https://github.com/Kijewski/zipsign) to verify `.zip` and `.tar.gz` artifacts. Artifacts are assumed to have been signed using zipsign.
 
 Please activate the feature(s) needed by your release files.
 
@@ -86,7 +87,7 @@ fn update() -> Result<(), Box<::std::error::Error>> {
 ```
 
 Separate utilities are also exposed (**NOTE**: the following example _requires_ the `archive-tar` feature,
-see the [features](#features) section above):
+see the [features](#features) section above). The `self_replace` crate is re-exported for convenience:
 
 ```rust
 # #[cfg(feature = "archive-tar")]
@@ -118,11 +119,8 @@ fn update() -> Result<(), Box<::std::error::Error>> {
         .archive(self_update::ArchiveKind::Tar(Some(self_update::Compression::Gz)))
         .extract_file(&tmp_dir.path(), &bin_name)?;
 
-    let tmp_file = tmp_dir.path().join("replacement_tmp");
-    let bin_path = tmp_dir.path().join(bin_name);
-    self_update::Move::from_source(&bin_path)
-        .replace_using_temp(&tmp_file)
-        .to_dest(&::std::env::current_exe()?)?;
+    let new_exe = tmp_dir.path().join(bin_name);
+    self_replace::self_replace(new_exe)?;
 
     Ok(())
 }
@@ -130,6 +128,7 @@ fn update() -> Result<(), Box<::std::error::Error>> {
 
 */
 
+pub use self_replace;
 pub use tempfile::TempDir;
 
 #[cfg(feature = "compression-flate2")]
@@ -1087,7 +1086,7 @@ mod tests {
             #[cfg(feature = "archive-zip")]
             ArchiveKind::Zip => {
                 let mut zip = zip::ZipWriter::new(archive_file);
-                let options = zip::write::FileOptions::default()
+                let options = zip::write::SimpleFileOptions::default()
                     .compression_method(zip::CompressionMethod::Stored);
                 zip.start_file("temp.txt", options)
                     .expect("failed starting zip file");
