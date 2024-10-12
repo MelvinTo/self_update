@@ -148,6 +148,7 @@ pub struct UpdateBuilder {
     show_download_progress: bool,
     show_output: bool,
     no_confirm: bool,
+    self_replace: bool,
     current_version: Option<String>,
     target_version: Option<String>,
     progress_template: String,
@@ -176,6 +177,7 @@ impl Default for UpdateBuilder {
             progress_template: DEFAULT_PROGRESS_TEMPLATE.to_string(),
             progress_chars: DEFAULT_PROGRESS_CHARS.to_string(),
             auth_token: None,
+            self_replace: true,
             #[cfg(feature = "signatures")]
             verifying_keys: vec![],
         }
@@ -301,6 +303,11 @@ impl UpdateBuilder {
         self
     }
 
+    pub fn self_replace(&mut self, self_replace: bool) -> &mut Self {
+        self.self_replace = self_replace;
+        self
+    }
+
     /// Set download progress style.
     pub fn set_progress_style(
         &mut self,
@@ -389,6 +396,7 @@ impl UpdateBuilder {
             progress_chars: self.progress_chars.clone(),
             show_output: self.show_output,
             no_confirm: self.no_confirm,
+            self_replace: self.self_replace,
             auth_token: self.auth_token.clone(),
             #[cfg(feature = "signatures")]
             verifying_keys: self.verifying_keys.clone(),
@@ -411,6 +419,7 @@ pub struct Update {
     bin_path_in_archive: String,
     show_download_progress: bool,
     show_output: bool,
+    self_replace: bool,
     no_confirm: bool,
     progress_template: String,
     progress_chars: String,
@@ -504,6 +513,10 @@ impl ReleaseUpdate for Update {
 
     fn show_output(&self) -> bool {
         self.show_output
+    }
+
+    fn self_replace(&self) -> bool {
+        self.self_replace
     }
 
     fn no_confirm(&self) -> bool {

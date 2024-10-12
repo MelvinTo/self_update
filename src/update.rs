@@ -2,8 +2,9 @@ use regex::Regex;
 use reqwest::{self, header};
 use std::borrow::Cow;
 use std::env::consts::{ARCH, OS};
-use std::fs;
+use std::fs::{self, set_permissions, Permissions};
 use std::path::PathBuf;
+use std::os::unix::fs::PermissionsExt;
 
 use crate::{confirm, errors::*, version, Download, Extract, Status};
 
@@ -96,6 +97,10 @@ pub trait ReleaseUpdate {
     /// Optional identifier of determining the asset among multiple matches
     fn identifier(&self) -> Option<String> {
         None
+    }
+
+    fn self_replace(&self) -> bool {
+        true
     }
 
     /// Name of the binary being updated
@@ -267,7 +272,13 @@ pub trait ReleaseUpdate {
         println(show_output, "Done");
 
         print_flush(show_output, "Replacing binary file... ")?;
-        self_replace::self_replace(new_exe)?;
+        if self.self_replace() {
+            self_replace::self_replace(new_exe)?;
+        } else {
+            fs::copy(&new_exe, &bin_install_path)?;
+            let permission = Permissions::from_mode(0o755);
+            set_permissions(bin_install_path, permission.clone())?;
+        }
         println(show_output, "Done");
 
         Ok(UpdateStatus::Updated(release))
@@ -332,7 +343,7 @@ fn verify_signature(
             crate::ArchiveKind::Plain(Some(crate::Compression::Gz)) => {
                 zipsign_api::verify::verify_tar(&mut exe, &keys, Some(context))
                     .map_err(zipsign_api::ZipsignError::from)?;
-                info!("Package signature verified: {}", archive_path.display());
+                println!("Package signature verified: {}", archive_path.display());
                 return Ok(());
             }
             _ => {}
