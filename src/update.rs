@@ -3,8 +3,9 @@ use reqwest::{self, header};
 use std::borrow::Cow;
 use std::env::consts::{ARCH, OS};
 use std::fs::{self, set_permissions, Permissions};
-use std::path::PathBuf;
 use std::os::unix::fs::PermissionsExt;
+use std::path::PathBuf;
+use std::process::Command;
 
 use crate::{confirm, errors::*, version, Download, Extract, Status};
 
@@ -271,7 +272,31 @@ pub trait ReleaseUpdate {
 
         println(show_output, "Done");
 
+        let permission = Permissions::from_mode(0o755);
+        set_permissions(&new_exe, permission.clone())?;
+        let output = Command::new(&new_exe).arg("--version").output()?;
+        if !output.status.success() {
+            return Err(Error::Update("new exe run failed".to_string()));
+        }
+
+        let Ok(version_str) = String::from_utf8(output.stdout) else {
+            return Err(Error::Update(
+                "new exe has invalid version output".to_string(),
+            ));
+        };
+
+        let exec_version = version_str.trim().to_string();
+        println(show_output, &format!("Exec version: {}", exec_version));
+
+        if exec_version.clone() != release.version {
+            return Err(Error::Update(format!(
+                "wrong version detected (expected: {}, exec: {})",
+                release.version, exec_version
+            )));
+        }
+
         print_flush(show_output, "Replacing binary file... ")?;
+
         if self.self_replace() {
             self_replace::self_replace(new_exe)?;
         } else {
